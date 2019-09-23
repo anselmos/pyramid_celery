@@ -20,8 +20,10 @@ def add_preload_arguments(parser):
 
 celery_app = Celery()
 if celery_version.major > 3:
+    print('INI OPTION celery version >3)')
     celery_app.user_options['preload'].add(add_preload_arguments)
 else:
+    print('INI OPTION celery version != >3)')
     celery_app.user_options['preload'].add(Option(
         '-i', '--ini', default=None,
         help='Paste ini configuration file.'
@@ -49,6 +51,7 @@ def configure_logging(*args, **kwargs):
 
 
 def setup_app(app, root, request, registry, closer, ini_location):
+    print('INI LOCATION', ini_location)
     loader = INILoader(celery_app, ini_file=ini_location)
     celery_config = loader.read_configuration()
 
@@ -60,6 +63,7 @@ def setup_app(app, root, request, registry, closer, ini_location):
 
     if asbool(celery_config.get('USE_CELERYCONFIG', False)) is True:
         config_path = 'celeryconfig'
+        print('set USE_CELERYCONFIG, config_path: ', config_path)
         celery_app.config_from_object(config_path)
     else:
         # TODO: Couldn't find a way with celery to do this
@@ -81,6 +85,7 @@ def setup_app(app, root, request, registry, closer, ini_location):
     celery_app.conf.update({'PYRAMID_REQUEST': request})
     celery_app.conf.update({'PYRAMID_REGISTRY': registry})
     celery_app.conf.update({'PYRAMID_CLOSER': closer})
+    print('app_config:', celery_app.conf)
 
 
 @signals.user_preload_options.connect
